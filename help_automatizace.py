@@ -17,7 +17,6 @@ BOT = commands.Bot(command_prefix='_', intents=intents)
 support_channel = 1241054148661739645
 support_povolene_role = ["Admin", "", "Vývojář*ka projektu", "Zakladatel projektu"]
 admin_channel_id = 1241069875238277203
-
 anonymni_channel = 1241352892426883122
 uzivatel_pro_anonymy = 311947085278740480
 
@@ -76,36 +75,9 @@ async def on_reaction_add(reaction, user):
             await reaction.message.channel.send(f"{user.mention} děkujeme za vloženou důvěru a tvá prosba právě doputovala k adminům!")
         else:
             await reaction.message.channel.send(f"{user.mention} reagoval(a) na zprávu bota reakcí: {reaction.emoji} - odmítám pomoc.")
-
+            
 @BOT.command()
 async def hello(ctx):
     await ctx.send("Ahoj")
-    
-# anonymní kanál:
-
-@BOT.event
-async def on_message(message : discord.Message):
-    if message.channel.id == anonymni_channel and not message.author.bot:
-        c.execute("INSERT INTO messages (user_id, nick, message) VALUES (?, ?, ?)", (message.author.id, str(message.author), message.content))
-        conn.commit()
-        await message.delete()
-        await message.channel.send(f"Anonymní uživatel: {message.content}")
-        admin = BOT.get_user(uzivatel_pro_anonymy)
-
-        if admin:
-            await admin.send(f"Zpráva od {message.author} (ID: {message.author.id}): {message.content}")
-            await BOT.process_commands(message)
-    await BOT.process_commands(message)
-
-@BOT.command()
-@commands.has_permissions(administrator=True)
-async def get_users(ctx):
-    c.execute("SELECT user_id, nick, COUNT(*) as message_count FROM messages GROUP BY user_id, nick")
-    users = c.fetchall()
-    if users:
-        for user_id, nick, message_count in users:
-            await ctx.send(f"Uživatel: {nick} (ID: {user_id}), Počet zpráv: {message_count}")
-    else:
-        await ctx.send("Žádní uživatelé nenalezeni.")
 
 BOT.run(BOT_TOKEN)
