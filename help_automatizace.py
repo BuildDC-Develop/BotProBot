@@ -20,12 +20,6 @@ admin_channel_id = 1241069875238277203
 anonymni_channel = 1241352892426883122
 uzivatel_pro_anonymy = 311947085278740480
 
-conn = sqlite3.connect('anonymni_kanal_zpravy.db')
-c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS messages
-             (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, nick TEXT, message TEXT)''')
-conn.commit()
-
 user_messages = {}
 
 @BOT.event
