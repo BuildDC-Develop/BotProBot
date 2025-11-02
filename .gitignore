@@ -8,6 +8,10 @@ __pycache__/
 dist/
 build/
 
+# Zálohy a staré soubory
+*_old.py
+*.bak
+
 # Virtual Environment
 venv/
 env/

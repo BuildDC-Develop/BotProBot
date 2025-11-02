@@ -1,206 +1,309 @@
-# BotProBot - Discord Sledovač s Help Systémem 👀🆘
+# BotProBot - Discord Bot s Help Systémem 🤖
 
-Discord bot pro sledování konverzací a správu soukromých help requestů.
+Discord bot pro sledování konverzací a správu soukromých help requestů s **modulární architekturou**.
 
-## 📋 Popis
+## ✨ Hlavní Funkce
 
-Tento bot kombinuje dvě hlavní funkce:
-1. **Sledování konverzací** - Loguje všechny zprávy, úpravy a mazání na serveru
-2. **Help systém** - Soukromé vlákna pro řešení problémů uživatelů s interaktivním tlačítkem a formulářem
+- 🔍 **Sledování konverzací** - Automatické logování všech zpráv, úprav a událostí
+- 🆘 **Help systém** - Soukromá vlákna s interaktivním formulářem pro support
+- 🔌 **Modulární struktura** - Snadné přidávání nových funkcí (cogs/events/utils)
 
-## 🚀 Instalace a Nastavení
+## 🚀 Rychlý Start
 
-### 1. Vytvoření virtuálního prostředí (venv)
+### 1. Klonování a instalace
+```bash
+git clone https://github.com/Ypsilonx/BotProBot.git
+cd BotProBot
 
-**Windows:**
-```powershell
-# Vytvoření venv
+# Vytvoř virtuální prostředí
 python -m venv venv
 
-# Aktivace venv
-.\venv\Scripts\Activate.ps1
-```
+# Aktivuj venv
+.\venv\Scripts\Activate.ps1  # Windows
+source venv/bin/activate      # Linux
 
-**Linux:**
-```bash
-# Vytvoření venv
-python3 -m venv venv
-
-# Aktivace venv
-source venv/bin/activate
-```
-
-### 2. Instalace závislostí
-
-Po aktivaci venv nainstaluj potřebné balíčky:
-
-```bash
+# Nainstaluj závislosti
 pip install -r requirements.txt
 ```
 
-### 3. Konfigurace
-
-1. Zkopíruj `example.env` a přejmenuj na `.env`:
-   ```bash
-   # Windows
-   Copy-Item example.env .env
-   
-   # Linux
-   cp example.env .env
-   ```
-
-2. Otevři `.env` a vlož svůj Discord bot token:
-   ```
-   DISCORD_TOKEN=tvuj_discord_token_zde
-   ```
-
-3. Nastav kanály v `config.py`:
-   ```python
-   # ID kanálu kde bude tlačítko "Mám problém" a kde se vytvoří soukromá vlákna
-   HELP_CHANNEL_ID = 1234567890  # Tvoje ID
-   
-   # ID soukromého admin kanálu pro notifikace o nových problémech
-   ADMIN_NOTIFICATION_CHANNEL_ID = 9876543210  # Tvoje ID
-   
-   # Role které mohou řešit problémy
-   SUPPORT_ROLES = ["Admin", "Support", "Zakladatel projektu"]
-   ```
-
-### 4. Získání Discord Bot Tokenu
-
-1. Jdi na [Discord Developer Portal](https://discord.com/developers/applications)
-2. Vytvoř novou aplikaci nebo vyber existující
-3. V sekci "Bot" zkopíruj token
-4. V sekci "Bot" zapni tyto Intent permissions:
-   - Presence Intent
-   - Server Members Intent
-   - Message Content Intent
-
-## 🎮 Spuštění Bota
-
-**Ujisti se že máš aktivovaný venv!**
-
+### 2. Konfigurace
 ```bash
-python bot.py
+# Zkopíruj a uprav .env
+Copy-Item example.env .env    # Windows
+cp example.env .env            # Linux
 ```
 
-## 📝 Dostupné Příkazy
+V `.env` nastav:
+```env
+DISCORD_TOKEN=tvuj_discord_token_zde
+```
 
-- `_ping` - Testuje odezvu bota
-- `_info` - Zobrazí informace o botovi
-- `_setup_help` - **(Admin only)** Vytvoří tlačítko "Mám problém" v aktuálním kanálu
-- `_help` - Zobrazí nápovědu
+V `config.py` nastav ID kanálů:
+```python
+HELP_CHANNEL_ID = 1234567890              # Kanál s help tlačítkem
+ADMIN_NOTIFICATION_CHANNEL_ID = 9876543210 # Admin notifikace
+SUPPORT_ROLES = ["Admin", "Support"]       # Support role
+```
 
-## 📁 Struktura Projektu
+### 3. Discord Bot Setup
+1. [Discord Developer Portal](https://discord.com/developers/applications)
+2. Vytvoř aplikaci → Bot → Zkopíruj token
+3. Zapni Intents: **Presence**, **Server Members**, **Message Content**
+4. Přidej bota na server s oprávněními: Manage Threads, Send Messages, Read Messages
+
+## ▶️ Spuštění
+
+⚠️ **Vždy spouštěj ve venv!**
+
+### Windows
+```bash
+start_bot.bat              # Batch skript (doporučeno)
+.\start_bot.ps1            # PowerShell
+```
+
+### Linux
+```bash
+source venv/bin/activate && python bot.py
+```
+
+### Příkazy
+- `_ping` - Test odezvy
+- `_info` - Info o botovi
+- `_setup_help` - **(Admin)** Vytvoří help tlačítko
+- `_help` - Nápověda
+
+## 📁 Struktura
 
 ```
 BuildDC/
-├── bot.py                    # Hlavní soubor bota
-├── config.py                 # Konfigurační nastavení
-├── requirements.txt          # Python závislosti
-├── .env                      # Environment proměnné (NEPŘIDÁVAT DO GITU!)
-├── example.env              # Šablona pro .env
-├── .gitignore               # Ignorované soubory pro git
-├── logs/                    # Složka pro logy (vytvoří se automaticky)
-│   └── bot.log             # Soubor s logy
-└── venv/                    # Virtuální prostředí (NEPŘIDÁVAT DO GITU!)
+├── bot.py                  # ⚡ Hlavní soubor
+├── config.py               # ⚙️ Konfigurace
+├── cogs/                   # 🔌 Příkazy (help_system, basic_commands)
+├── events/                 # 📡 Event handlery (message_logging)
+├── utils/                  # 🛠️ Pomocné funkce (helpers)
+└── logs/                   # 📊 Logy
 ```
 
-## 🔐 Bezpečnost
+### Kam patří jaký kód?
+- **`cogs/`** → Discord příkazy (`_command`) a komplexní funkce
+- **`events/`** → Event listenery (`on_message`, `on_member_join`)
+- **`utils/`** → Reusable funkce (formátování, validace)
 
-⚠️ **DŮLEŽITÉ:**
-- **NIKDY** nesdílej svůj `.env` soubor nebo Discord token
-- Token je v `.gitignore`, takže se automaticky nepřidá do gitu
-- Pokud token unikne, okamžitě ho regeneruj v Discord Developer Portal
+---
 
-## 📊 Funkce
+## � Detailní Dokumentace
 
-### 🔍 Sledování Konverzací
-- ✅ Logování všech zpráv na serveru
-- ✅ Sledování úprav zpráv
-- ✅ Sledování mazání zpráv
-- ✅ Logování nových členů
-- ✅ Logování odchodu členů
+<details>
+<summary><b>🆘 Help Systém - Jak to funguje?</b></summary>
 
-Všechny události se ukládají do `logs/bot.log` s formátem:
+### Workflow
+1. Uživatel klikne "🆘 Mám problém" → Vyplní formulář
+2. Vytvoří se **soukromé vlákno** (vidí jen autor + support)
+3. Admin dostane notifikaci s tlačítkem "✅ Řeším"
+4. Po kliknutí → Přidá se do vlákna + odešle DM uživateli
+5. Řešení probíhá ve vlákně
+
+### Setup
+```python
+# config.py
+HELP_CHANNEL_ID = 123456789              # Kanál s tlačítkem
+ADMIN_NOTIFICATION_CHANNEL_ID = 987654321 # Admin notifikace
+SUPPORT_ROLES = ["Admin", "Support"]      # Kdo může řešit
 ```
-2025-11-01 10:30:45 - [Server] [#channel] User#1234: zpráva...
+
+V help kanálu zadej: `_setup_help`
+
+### Bezpečnost
+✅ Soukromé vlákno - vidí jen účastníci  
+✅ Počáteční zpráva neobsahuje citlivé údaje  
+✅ Ideální pro hesla, osobní údaje
+</details>
+
+<details>
+<summary><b>🔍 Sledování Konverzací</b></summary>
+
+Automatické logování do `logs/bot.log`:
+- ✅ Všechny zprávy na serveru
+- ✅ Úpravy zpráv (před/po)
+- ✅ Mazání zpráv
+- ✅ Nové členy
+- ✅ Odchody členů
+
+Formát: `2025-11-01 10:30:45 - [Server] [#channel] User: zpráva...`
+</details>
+
+<details>
+<summary><b>🔌 Modulární Struktura - Kam dát nový kód?</b></summary>
+
+### Rozhodovací strom
+```
+Má to Discord příkaz (_command)?
+  ├─ ANO → cogs/
+  └─ NE
+      └─ Je to event listener (on_*)?
+          ├─ ANO → events/
+          └─ NE → utils/
 ```
 
-### 🆘 Help Systém (Soukromé Help Requesty)
+### cogs/ - Příkazy a komplexní funkce
+- Discord příkazy (`@commands.command()`)
+- Komplexní interakce (modaly, buttony)
+- Má stav nebo setup
 
-#### Jak to funguje:
-1. **Uživatel klikne na tlačítko** "🆘 Mám problém" v help kanálu
-2. **Vyplní formulář** s názvem a popisem problému
-3. **Vytvoří se soukromé vlákno** 🔒
-   - Viditelné pouze pro autora a support tým
-   - Automaticky přidá všechny s admin/support rolí
-4. **Notifikace do admin kanálu** s tlačítkem "✅ Řeším"
-5. **Když admin klikne "Řeším":**
-   - Přidá se do vlákna
-   - Odešle zprávu do vlákna
-   - Pošle DM autorovi problému
-6. **Řešení probíhá ve vlákně** - kompletně soukromé
+**Příklad:**
+```python
+# cogs/my_commands.py
+from discord.ext import commands
 
-#### Nastavení Help Systému:
-1. Vytvoř textový kanál pro help (např. `#chci-pomoct`)
-2. Vytvoř soukromý admin kanál (např. `#admin-notifikace`)
-3. Nastav ID obou kanálů v `config.py`
-4. V help kanálu zadej: `_setup_help`
-5. Tlačítko se objeví a zůstane tam navždy (persistentní)
+class MyCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def hello(self, ctx):
+        await ctx.send("Hi!")
 
-#### Bezpečnost:
-- ✅ Počáteční zpráva neobsahuje žádné citlivé údaje
-- ✅ Všechny detaily jsou pouze v soukromém vlákně
-- ✅ Vlákno vidí jen autor + support tým
-- ✅ Perfektní pro citlivé informace (hesla, osobní údaje, atd.)
+async def setup(bot):
+    await bot.add_cog(MyCommands(bot))
+```
 
-## 🐧 Migrace na Linux
+Přidej do `bot.py`: `cogs_to_load = [..., 'cogs.my_commands']`
 
-1. Zkopíruj celý projekt na Linux PC
-2. Vytvoř nový venv na Linux systému:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Ujisti se že máš `.env` soubor s tokenem
-4. Spusť bota: `python3 bot.py`
+### events/ - Event handlery
+- Jen event listenery (`@commands.Cog.listener()`)
+- Reagují automaticky na události
+- Žádné příkazy
 
-## 🎯 Rychlý Start - Help Systém
+**Příklad:**
+```python
+# events/my_events.py
+from discord.ext import commands
 
-1. **Spusť bota:** `python bot.py`
-2. **Vytvoř kanály na Discordu:**
-   - `#chci-pomoct` (textový kanál)
-   - `#admin-notifikace` (soukromý admin kanál)
-3. **Zkopíruj ID kanálů** (pravým klikem → Kopírovat ID)
-4. **Nastav v `config.py`:**
-   ```python
-   HELP_CHANNEL_ID = 123456789  # ID z #chci-pomoct
-   ADMIN_NOTIFICATION_CHANNEL_ID = 987654321  # ID z #admin-notifikace
-   ```
-5. **V `#chci-pomoct` zadej:** `_setup_help`
-6. **Hotovo!** Tlačítko je připravené 🎉
+class MyEvents(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        print(f"Message: {message.content}")
 
-## 🔧 Řešení problémů
+async def setup(bot):
+    await bot.add_cog(MyEvents(bot))
+```
 
-### Bot se nepřipojí
-- Zkontroluj že je token správně v `.env`
-- Ověř že jsou v Developer Portal zapnuté správné Intents
+Přidej do `bot.py`: `events_to_load = [..., 'events.my_events']`
+
+### utils/ - Pomocné funkce
+- Reusable funkce
+- Použitelné všude
+- Pure funkce (input → output)
+
+**Příklad:**
+```python
+# utils/my_utils.py
+def format_text(text: str) -> str:
+    return text.upper()
+```
+
+**Použití:**
+```python
+from utils.my_utils import format_text
+result = format_text("hello")
+```
+
+### Pravidla importů
+- ✅ `cogs/` může importovat z `utils/`
+- ✅ `events/` může importovat z `utils/`
+- ❌ `utils/` NESMÍ importovat z `cogs/` nebo `events/`
+</details>
+
+<details>
+<summary><b>🚀 Přidání Nového Modulu</b></summary>
+
+### Nový Cog (příkaz)
+1. Vytvoř `cogs/my_cog.py`
+2. Implementuj třídu + `async def setup(bot)`
+3. V `bot.py` přidej do `cogs_to_load`
+4. Restart
+
+### Nový Event Handler
+1. Vytvoř `events/my_event.py`
+2. Implementuj třídu + `async def setup(bot)`
+3. V `bot.py` přidej do `events_to_load`
+4. Restart
+
+### Nová Utility
+1. Vytvoř `utils/my_util.py`
+2. Implementuj funkce
+3. Importuj kde potřebuješ
+4. Žádný restart (pokud jen přidáváš)
+</details>
+
+<details>
+<summary><b>📝 Changelog - Verze Historie</b></summary>
+
+### 2025-11-02 - Modulární Refaktoring
+
+**Před:**
+- 545 řádků v jednom souboru
+- Těžké na údržbu
+
+**Po:**
+- 120 řádků v `bot.py`
+- Funkce rozděleny: `cogs/`, `events/`, `utils/`
+- Snadné přidávání funkcí
+
+**Výhody:**
+- ✅ Modularita - každá funkce samostatně
+- ✅ Údržba - snadné najít kód
+- ✅ Rozšiřitelnost - nová funkce = nový soubor
+- ✅ Testovatelnost - jednotlivé testy
+- ✅ Hot reload - reload bez restartu
+
+**Nové soubory:**
+- `start_bot.bat` / `start_bot.ps1` - Spouštěcí skripty
+- `cogs/help_system.py` - Help systém
+- `cogs/basic_commands.py` - Základní příkazy
+- `events/message_logging.py` - Logování
+- `utils/helpers.py` - Pomocné funkce
+</details>
+
+<details>
+<summary><b>🔧 Troubleshooting</b></summary>
+
+### Bot se nespustí
+```bash
+# Zkontroluj venv
+.\venv\Scripts\Activate.ps1
+
+# Reinstaluj závislosti
+pip install -r requirements.txt
+
+# Zkontroluj logy
+cat logs/bot.log
+```
 
 ### Import chyby
-- Ujisti se že máš aktivovaný venv
-- Reinstaluj závislosti: `pip install -r requirements.txt`
+- ✅ Aktivuj venv před spuštěním
+- ✅ Ověř že je `requirements.txt` nainstalovaný
 
 ### Help systém nefunguje
-- Zkontroluj že jsou nastavené ID kanálů v `config.py`
-- Ověř že kanály existují a bot má k nim přístup
-- Ujisti se že bot má oprávnění vytvářet vlákna
+- ✅ ID kanálů správně nastavené v `config.py`
+- ✅ Bot má oprávnění vytvářet vlákna
+- ✅ Support role existují na serveru
+
+### Token problémy
+- ❌ **NIKDY** nesdílej token
+- ✅ Token je v `.env` (git ignoruje)
+- ✅ Pokud unikne → regeneruj v Developer Portal
+</details>
+
+---
 
 ## 👨‍💻 Autor
 
-Tom Cib
+**Tom Cib** | [GitHub](https://github.com/Ypsilonx/BotProBot)
 
 ## 📜 Licence
 
-Tento projekt je určen pro osobní použití.
+Projekt pro osobní použití.
