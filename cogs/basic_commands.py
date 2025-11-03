@@ -111,6 +111,43 @@ class BasicCommands(commands.Cog):
         
         await ctx.send(embed=embed)
         logger.info(f"Reload all vyvolán uživatelem {ctx.author.name}: {len(reloaded)} úspěšných, {len(failed)} chyb")
+    
+    @commands.command(name='shutdown')
+    @commands.is_owner()
+    async def shutdown(self, ctx):
+        """
+        Vypne bota (graceful shutdown).
+        Použití: _shutdown
+        
+        POZOR: Pokud běží s Managerem, Manager ho restartuje!
+        Pro úplné vypnutí použij _shutdown_all
+        
+        Pouze pro vlastníka bota!
+        """
+        await ctx.send("👋 Vypínám se... Bye!")
+        logger.warning(f"⚠️ Bot vypnut příkazem od {ctx.author.name}")
+        await self.bot.close()
+    
+    @commands.command(name='shutdown_all')
+    @commands.is_owner()
+    async def shutdown_all(self, ctx):
+        """
+        Vypne bota a signalizuje Manageru aby ho nerestartoval.
+        Použití: _shutdown_all
+        
+        Toto úplně ukončí bota i Manager.
+        
+        Pouze pro vlastníka bota!
+        """
+        await ctx.send("👋 Vypínám bota a Manager... Úplné ukončení!")
+        logger.warning(f"⚠️ Bot + Manager vypnut příkazem od {ctx.author.name}")
+        
+        # Vytvoř signal file pro Manager
+        import os
+        with open('.shutdown_signal', 'w') as f:
+            f.write('shutdown_requested')
+        
+        await self.bot.close()
 
 
 async def setup(bot):

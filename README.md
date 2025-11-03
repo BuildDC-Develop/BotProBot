@@ -79,6 +79,8 @@ start_bot_managed.bat      # Windows (batch)
 - `_setup_help` - **(Admin)** Vytvoří help tlačítko
 - `_reload <modul>` - **(Owner)** Reload cog bez restartu
 - `_reload_all` - **(Owner)** Reload všech modulů
+- `_shutdown` - **(Owner)** Vypne bota (Manager ho restartuje)
+- `_shutdown_all` - **(Owner)** Vypne bota i Manager (úplné ukončení)
 - `_help` - Nápověda
 
 ## 📁 Struktura

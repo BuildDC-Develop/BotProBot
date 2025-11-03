@@ -88,6 +88,19 @@ class BotManager:
         
         return False
     
+    def check_shutdown_signal(self):
+        """Zkontroluje zda existuje signal file pro shutdown"""
+        return os.path.exists('.shutdown_signal')
+    
+    def clear_shutdown_signal(self):
+        """Smaže shutdown signal file"""
+        try:
+            if os.path.exists('.shutdown_signal'):
+                os.remove('.shutdown_signal')
+                logger.info("🗑️ Shutdown signal smazán")
+        except Exception as e:
+            logger.error(f"Chyba při mazání shutdown signal: {e}")
+    
     def run(self):
         """Hlavní smyčka manageru"""
         logger.info("=" * 60)
@@ -95,11 +108,27 @@ class BotManager:
         logger.info(f"📅 Daily restart nastaven na: {self.daily_restart_hour:02d}:{self.daily_restart_minute:02d}")
         logger.info("=" * 60)
         
+        # Vyčisti starý shutdown signal pokud existuje
+        self.clear_shutdown_signal()
+        
         self.start_bot()
         
         try:
             while True:
                 time.sleep(30)  # Kontrola každých 30 sekund
+                
+                # Kontrola shutdown signalu
+                if self.check_shutdown_signal():
+                    logger.info("🛑 Detekován shutdown signal - ukončuji Manager")
+                    self.clear_shutdown_signal()
+                    if self.process:
+                        self.process.terminate()
+                        try:
+                            self.process.wait(timeout=10)
+                        except subprocess.TimeoutExpired:
+                            self.process.kill()
+                    logger.info("✅ Manager ukončen")
+                    break
                 
                 # Kontrola zda bot běží
                 if not self.is_bot_running():

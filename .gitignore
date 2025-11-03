@@ -30,6 +30,9 @@ ENV/
 *.log
 logs/
 
+# Manager signals
+.shutdown_signal
+
 # Database
 *.db
 *.sqlite
