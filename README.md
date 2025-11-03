@@ -55,21 +55,30 @@ SUPPORT_ROLES = ["Admin", "Support"]       # Support role
 
 ⚠️ **Vždy spouštěj ve venv!**
 
-### Windows
+### Základní spuštění
 ```bash
-start_bot.bat              # Batch skript (doporučeno)
-.\start_bot.ps1            # PowerShell
+start_bot.bat              # Windows (batch)
+.\start_bot.ps1            # Windows (PowerShell)
+source venv/bin/activate && python bot.py  # Linux
 ```
 
-### Linux
+### Spuštění s Managerem (doporučeno pro produkci)
 ```bash
-source venv/bin/activate && python bot.py
+start_bot_managed.bat      # Windows (batch)
+.\start_bot_managed.ps1    # Windows (PowerShell)
 ```
+
+**Manager zajišťuje:**
+- 🔄 Auto-restart při pádu bota
+- 🕐 Daily restart ve 4:00 ráno
+- 📊 Logování do `logs/manager.log`
 
 ### Příkazy
 - `_ping` - Test odezvy
 - `_info` - Info o botovi
 - `_setup_help` - **(Admin)** Vytvoří help tlačítko
+- `_reload <modul>` - **(Owner)** Reload cog bez restartu
+- `_reload_all` - **(Owner)** Reload všech modulů
 - `_help` - Nápověda
 
 ## 📁 Struktura
