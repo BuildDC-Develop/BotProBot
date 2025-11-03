@@ -48,6 +48,7 @@ async def load_extensions():
     cogs_to_load = [
         'cogs.help_system',
         'cogs.basic_commands',
+        'cogs.thread_manager',
     ]
     
     # Events - event handlery

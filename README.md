@@ -77,6 +77,7 @@ start_bot_managed.bat      # Windows (batch)
 - `_ping` - Test odezvy
 - `_info` - Info o botovi
 - `_setup_help` - **(Admin)** Vytvoří help tlačítko
+- `_thread_manage` - **(Admin)** Správa členů vlákna (hromadné odebrání)
 - `_reload <modul>` - **(Owner)** Reload cog bez restartu
 - `_reload_all` - **(Owner)** Reload všech modulů
 - `_shutdown` - **(Owner)** Vypne bota (Manager ho restartuje)
@@ -89,7 +90,7 @@ start_bot_managed.bat      # Windows (batch)
 BuildDC/
 ├── bot.py                  # ⚡ Hlavní soubor
 ├── config.py               # ⚙️ Konfigurace
-├── cogs/                   # 🔌 Příkazy (help_system, basic_commands)
+├── cogs/                   # 🔌 Příkazy (help_system, basic_commands, thread_manager)
 ├── events/                 # 📡 Event handlery (message_logging)
 ├── utils/                  # 🛠️ Pomocné funkce (helpers)
 └── logs/                   # 📊 Logy
@@ -128,6 +129,52 @@ V help kanálu zadej: `_setup_help`
 ✅ Soukromé vlákno - vidí jen účastníci  
 ✅ Počáteční zpráva neobsahuje citlivé údaje  
 ✅ Ideální pro hesla, osobní údaje
+</details>
+
+<details>
+<summary><b>🧵 Thread Manager - Správa Členů Vláken</b></summary>
+
+### Co umožňuje?
+Hromadné odebírání členů z vláken - užitečné když máš 30+ lidí ve vlákně a potřebuješ vyčistit.
+
+### Použití
+Ve vlákně zadej: `_thread_manage`
+
+### Módy
+1. **📋 Správa členů** - Vyber konkrétní lidi checkboxy
+   - Zobrazí seznam všech členů ve vlákně
+   - Můžeš vybrat několik najednou (max 25 na stránku)
+   - Pagination pokud je > 25 lidí
+   - Klikni "🗑️ Odebrat vybrané"
+
+2. **🎭 Podle rolí** - Odeber všechny s určitou rolí
+   - Zobrazí všechny role členů ve vlákně
+   - Vyber role → odebere všechny s těmito rolemi
+   - Příklad: "Odeber všechny s rolí @Student"
+
+3. **📊 Info** - Zobraz detaily o vlákně
+   - Počet členů
+   - Seznam rolí
+   - Datum vytvoření
+
+### Požadavky
+- ⚙️ **Oprávnění:** `Manage Threads`
+- 📍 **Místo:** Musí být použit VE VLÁKNĚ (ne v běžném kanálu)
+
+### Příklad workflow
+```
+1. Otevři help request vlákno s 30 lidmi
+2. Zadej: _thread_manage
+3. Klikni "📋 Správa členů"
+4. Vyber 10 lidí co už nepotřebují být ve vlákně
+5. Klikni "🗑️ Odebrat vybrané"
+6. ✅ Vybraní členové odebraní
+```
+
+### Bezpečnost
+✅ Pouze uživatel který vyvolal příkaz může používat menu  
+✅ Vyžaduje `Manage Threads` oprávnění  
+✅ Boti jsou automaticky ignorováni
 </details>
 
 <details>
