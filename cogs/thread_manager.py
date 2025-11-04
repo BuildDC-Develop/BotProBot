@@ -34,9 +34,20 @@ class ThreadManager(commands.Cog):
         
         thread = ctx.channel
         
-        # Získej členy vlákna pomocí thread.members (vrací list Member objektů)
-        # Toto zahrnuje všechny členy (online i offline) přidané do vlákna
-        members = [member for member in thread.members if not member.bot]
+        # Získej členy vlákna pomocí fetch_members (bez závorek - je to async iterator)
+        members = []
+        try:
+            # fetch_members je AsyncIterator - iteruj přes něj bez volání ()
+            async for thread_member in thread.fetch_members:
+                # thread_member je ThreadMember objekt
+                # Získej plný Member objekt z guild pro přístup k rolím
+                guild_member = thread.guild.get_member(thread_member.id)
+                if guild_member and not guild_member.bot:
+                    members.append(guild_member)
+        except Exception as e:
+            logger.error(f"Chyba při načítání členů vlákna: {e}", exc_info=True)
+            await ctx.send(f"❌ Chyba při načítání členů: {str(e)}")
+            return
         
         if not members:
             await ctx.send("❌ Ve vlákně nejsou žádní členové (kromě botů)!")
