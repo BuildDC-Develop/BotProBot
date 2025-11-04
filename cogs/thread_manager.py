@@ -34,20 +34,21 @@ class ThreadManager(commands.Cog):
         
         thread = ctx.channel
         
-        # Získej členy vlákna - nejprve načti thread z API pro aktuální data
+        # Získej VŠECHNY členy vlákna (včetně offline)
+        # Discord cache (thread.members) často obsahuje jen online členy
+        # Nejspolehlivější způsob: projít historii zpráv
         try:
-            # Fetch thread pro aktuální cached data
-            fresh_thread = await ctx.guild.fetch_channel(thread.id)
-            members = [member for member in fresh_thread.members if not member.bot]
+            members_dict = {}  # Použij dict pro deduplikaci {user_id: Member}
             
-            # Pokud je cache prázdná, zkus manuálně z thread participants
-            if not members:
-                # Alternativa: Projdi thread a získej účastníky z historie zpráv
-                members_set = set()
-                async for message in thread.history(limit=None):
-                    if message.author and not message.author.bot:
-                        members_set.add(message.author)
-                members = list(members_set)
+            # Projdi CELOU historii vlákna a najdi všechny účastníky
+            logger.info(f"Načítám členy z historie vlákna {thread.name}...")
+            async for message in thread.history(limit=None):
+                if message.author and not message.author.bot and message.author.id not in members_dict:
+                    members_dict[message.author.id] = message.author
+            
+            members = list(members_dict.values())
+            logger.info(f"Nalezeno {len(members)} členů ve vlákně {thread.name}")
+            
         except Exception as e:
             logger.error(f"Chyba při načítání členů vlákna: {e}", exc_info=True)
             await ctx.send(f"❌ Chyba při načítání členů: {str(e)}")
