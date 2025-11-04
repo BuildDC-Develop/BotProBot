@@ -10,9 +10,6 @@ load_dotenv()
 # Discord Token
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-# Bot nastavení
-COMMAND_PREFIX = '_'
-
 # Kanály
 # ID kanálu kde se vytváří soukromá vlákna pro problémy (help kanál s tlačítkem)
 HELP_CHANNEL_ID = 1241054148661739645  # Kanál kde je tlačítko "Mám problém"

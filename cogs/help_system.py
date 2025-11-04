@@ -1,8 +1,9 @@
 """
 Help System Cog
-Obsahuje modal, view a příkazy pro help systém se soukromými vlákny.
+Obsahuje modal, view a slash příkazy pro help systém se soukromými vlákny.
 """
 import discord
+from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
 import logging
@@ -306,13 +307,10 @@ class HelpSystem(commands.Cog):
         self.bot.add_view(HelpButtonView(self.bot))
         logger.info("✅ Help System Cog načten - persistentní view registrováno")
     
-    @commands.command(name='setup_help')
-    @commands.has_permissions(administrator=True)
-    async def setup_help(self, ctx):
-        """
-        Vytvoří zprávu s tlačítkem "Mám problém" v aktuálním kanálu.
-        Použití: _setup_help
-        """
+    @app_commands.command(name='setup_help', description='[Admin] Vytvoří help tlačítko v aktuálním kanálu')
+    @app_commands.checks.has_permissions(administrator=True)
+    async def setup_help(self, interaction: discord.Interaction):
+        """Vytvoří zprávu s tlačítkem 'Mám problém' v aktuálním kanálu."""
         embed = discord.Embed(
             title="🆘 Potřebuješ pomoc?",
             description=(
@@ -326,14 +324,14 @@ class HelpSystem(commands.Cog):
         embed.set_footer(text="Děkujeme za tvou trpělivost! 💙")
         
         view = HelpButtonView(self.bot)
-        await ctx.send(embed=embed, view=view)
+        await interaction.channel.send(embed=embed, view=view)
         
-        try:
-            await ctx.message.delete()
-        except:
-            pass
+        await interaction.response.send_message(
+            "✅ Help tlačítko bylo vytvořeno!",
+            ephemeral=True
+        )
         
-        logger.info(f"Setup help tlačítka vytvořen v kanálu {ctx.channel.name} uživatelem {ctx.author.name}")
+        logger.info(f"Setup help tlačítka vytvořen v kanálu {interaction.channel.name} uživatelem {interaction.user.name}")
 
 
 async def setup(bot):

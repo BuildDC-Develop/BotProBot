@@ -1,14 +1,16 @@
 """
 Discord Bot - Hlavní soubor
 Modulární struktura s cogs pro snadnou správu funkcí.
+Používá Discord Slash Commands (/) pro moderní uživatelské rozhraní.
 """
 import discord
+from discord import app_commands
 from discord.ext import commands
 import logging
 import os
 import asyncio
 from config import (
-    DISCORD_TOKEN, COMMAND_PREFIX, LOG_LEVEL, LOG_FORMAT, LOG_FILE
+    DISCORD_TOKEN, LOG_LEVEL, LOG_FORMAT, LOG_FILE
 )
 
 # Vytvoření složky pro logy
@@ -32,8 +34,9 @@ intents.message_content = True
 intents.guilds = True
 intents.members = True
 
-# Vytvoření instance bota
-bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
+# Vytvoření instance bota s slash commands podporou
+# command_prefix není potřeba pro slash commands, ale ponecháme pro kompatibilitu
+bot = commands.Bot(command_prefix="!", intents=intents)  # Prefix ignorován pro slash commands
 
 
 # ====================
@@ -81,15 +84,30 @@ async def load_extensions():
 async def on_ready():
     """
     Spustí se když se bot úspěšně připojí k Discordu.
+    Synchronizuje slash commands s Discordem.
     """
     logger.info(f'✅ Bot {bot.user.name} (ID: {bot.user.id}) je připojený!')
     logger.info(f'📊 Připojen na {len(bot.guilds)} serverů')
+    
+    # Nastav owner_id pokud ještě není
+    if not bot.owner_id:
+        app_info = await bot.application_info()
+        bot.owner_id = app_info.owner.id
+        logger.info(f"👑 Owner ID nastaven: {bot.owner_id}")
+    
+    # Synchronizuj slash commands s Discordem
+    try:
+        logger.info("🔄 Synchronizuji slash commands...")
+        synced = await bot.tree.sync()
+        logger.info(f"✅ Synchronizováno {len(synced)} slash command(ů)")
+    except Exception as e:
+        logger.error(f"❌ Chyba při synchronizaci slash commands: {e}")
     
     # Nastavení statusu bota
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.watching,
-            name="konverzace 👀"
+            name="slash commands 🎯"
         )
     )
 

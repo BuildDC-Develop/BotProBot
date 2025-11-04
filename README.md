@@ -1,11 +1,13 @@
 # BotProBot - Discord Bot s Help Systémem 🤖
 
-Discord bot pro sledování konverzací a správu soukromých help requestů s **modulární architekturou**.
+Discord bot pro sledování konverzací a správu soukromých help requestů s **modulární architekturou** a **Slash Commands**.
 
 ## ✨ Hlavní Funkce
 
+- 🎯 **Slash Commands (/)** - Moderní Discord příkazy s automatickým menu
 - 🔍 **Sledování konverzací** - Automatické logování všech zpráv, úprav a událostí
 - 🆘 **Help systém** - Soukromá vlákna s interaktivním formulářem pro support
+- 🧵 **Thread Manager** - Hromadné odebírání členů z vláken
 - 🔌 **Modulární struktura** - Snadné přidávání nových funkcí (cogs/events/utils)
 
 ## 🚀 Rychlý Start
@@ -73,16 +75,15 @@ start_bot_managed.bat      # Windows (batch)
 - 🕐 Daily restart ve 4:00 ráno
 - 📊 Logování do `logs/manager.log`
 
-### Příkazy
-- `_ping` - Test odezvy
-- `_info` - Info o botovi
-- `_setup_help` - **(Admin)** Vytvoří help tlačítko
-- `_thread_manage` - **(Admin)** Správa členů vlákna (hromadné odebrání)
-- `_reload <modul>` - **(Owner)** Reload cog bez restartu
-- `_reload_all` - **(Owner)** Reload všech modulů
-- `_shutdown` - **(Owner)** Vypne bota (Manager ho restartuje)
-- `_shutdown_all` - **(Owner)** Vypne bota i Manager (úplné ukončení)
-- `_help` - Nápověda
+### Slash Commands (/)
+- `/ping` - Test odezvy
+- `/info` - Info o botovi
+- `/setup_help` - **(Admin)** Vytvoří help tlačítko
+- `/thread_manage` - **(Admin)** Správa členů vlákna (hromadné odebrání)
+- `/reload <modul>` - **(Owner)** Reload cog bez restartu
+- `/reload_all` - **(Owner)** Reload všech modulů
+- `/shutdown` - **(Owner)** Vypne bota (Manager ho restartuje)
+- `/shutdown_all` - **(Owner)** Vypne bota i Manager (úplné ukončení)
 
 ## 📁 Struktura
 
@@ -123,7 +124,7 @@ ADMIN_NOTIFICATION_CHANNEL_ID = 987654321 # Admin notifikace
 SUPPORT_ROLES = ["Admin", "Support"]      # Kdo může řešit
 ```
 
-V help kanálu zadej: `_setup_help`
+V help kanálu zadej: `/setup_help`
 
 ### Bezpečnost
 ✅ Soukromé vlákno - vidí jen účastníci  
@@ -138,7 +139,7 @@ V help kanálu zadej: `_setup_help`
 Hromadné odebírání členů z vláken - užitečné když máš 30+ lidí ve vlákně a potřebuješ vyčistit.
 
 ### Použití
-Ve vlákně zadej: `_thread_manage`
+Ve vlákně zadej: `/thread_manage`
 
 ### Módy
 1. **📋 Správa členů** - Vyber konkrétní lidi checkboxy
@@ -164,7 +165,7 @@ Ve vlákně zadej: `_thread_manage`
 ### Příklad workflow
 ```
 1. Otevři help request vlákno s 30 lidmi
-2. Zadej: _thread_manage
+2. Zadej: /thread_manage
 3. Klikni "📋 Správa členů"
 4. Vyber 10 lidí co už nepotřebují být ve vlákně
 5. Klikni "🗑️ Odebrat vybrané"

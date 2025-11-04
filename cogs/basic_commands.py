@@ -1,81 +1,82 @@
 """
 Basic Commands Cog
-Základní utility příkazy jako ping, info, atd.
+Základní utility příkazy - použití slash commands (/)
 """
 import discord
+from discord import app_commands
 from discord.ext import commands
 import logging
-from config import COMMAND_PREFIX
 
 logger = logging.getLogger('discord_bot')
 
 
 class BasicCommands(commands.Cog):
-    """Cog se základními příkazy"""
+    """Cog se základními slash příkazy"""
     
     def __init__(self, bot):
         self.bot = bot
         logger.info("✅ Basic Commands Cog načten")
     
-    @commands.command(name='ping')
-    async def ping(self, ctx):
-        """
-        Testovací příkaz - zkontroluje zda bot odpovídá.
-        Použití: _ping
-        """
+    @app_commands.command(name='ping', description='Zkontroluje odezvu bota')
+    async def ping(self, interaction: discord.Interaction):
+        """Testovací příkaz - zkontroluje zda bot odpovídá."""
         latency = round(self.bot.latency * 1000)
-        await ctx.send(f'🏓 Pong! Latence: {latency}ms')
-        logger.info(f"Příkaz ping vyvolán uživatelem {ctx.author.name}")
+        await interaction.response.send_message(f'🏓 Pong! Latence: {latency}ms')
+        logger.info(f"Slash command /ping vyvolán uživatelem {interaction.user.name}")
     
-    @commands.command(name='info')
-    async def info(self, ctx):
-        """
-        Zobrazí základní informace o botovi.
-        Použití: _info
-        """
+    @app_commands.command(name='info', description='Zobrazí informace o botovi')
+    async def info(self, interaction: discord.Interaction):
+        """Zobrazí základní informace o botovi."""
         embed = discord.Embed(
             title="ℹ️ Informace o botovi",
             description="Discord bot pro sledování konverzací a help systém",
             color=discord.Color.blue()
         )
-        embed.add_field(name="Prefix", value=COMMAND_PREFIX, inline=True)
+        embed.add_field(name="Typ příkazů", value="Slash Commands (/)", inline=True)
         embed.add_field(name="Servery", value=len(self.bot.guilds), inline=True)
         embed.add_field(name="Latence", value=f"{round(self.bot.latency * 1000)}ms", inline=True)
         
         # Počet načtených cogs
         embed.add_field(name="Moduly", value=len(self.bot.cogs), inline=True)
         
-        await ctx.send(embed=embed)
-        logger.info(f"Příkaz info vyvolán uživatelem {ctx.author.name}")
+        # Počet slash commands
+        commands_count = len(self.bot.tree.get_commands())
+        embed.add_field(name="Slash Commands", value=commands_count, inline=True)
+        
+        await interaction.response.send_message(embed=embed)
+        logger.info(f"Slash command /info vyvolán uživatelem {interaction.user.name}")
     
-    @commands.command(name='reload')
-    @commands.is_owner()
-    async def reload_cog(self, ctx, extension: str):
-        """
-        Reloaduje cog nebo event handler bez restartu bota.
-        Použití: _reload cogs.help_system
-        Pouze pro vlastníka bota!
-        """
+    @app_commands.command(name='reload', description='[Owner] Reloaduje modul bota')
+    @app_commands.describe(extension='Název modulu (např. cogs.help_system)')
+    async def reload_cog(self, interaction: discord.Interaction, extension: str):
+        """Reloaduje cog nebo event handler bez restartu bota. Pouze pro vlastníka!"""
+        # Kontrola zda je owner
+        if interaction.user.id != self.bot.owner_id:
+            await interaction.response.send_message("❌ Pouze vlastník bota může používat tento příkaz!", ephemeral=True)
+            return
+        
         try:
             await self.bot.reload_extension(extension)
-            await ctx.send(f"✅ Modul `{extension}` byl úspěšně reloadován!")
-            logger.info(f"Modul {extension} reloadován uživatelem {ctx.author.name}")
+            await interaction.response.send_message(f"✅ Modul `{extension}` byl úspěšně reloadován!")
+            logger.info(f"Modul {extension} reloadován uživatelem {interaction.user.name}")
         except commands.ExtensionNotLoaded:
-            await ctx.send(f"❌ Modul `{extension}` není načtený!")
+            await interaction.response.send_message(f"❌ Modul `{extension}` není načtený!", ephemeral=True)
         except commands.ExtensionNotFound:
-            await ctx.send(f"❌ Modul `{extension}` nebyl nalezen!")
+            await interaction.response.send_message(f"❌ Modul `{extension}` nebyl nalezen!", ephemeral=True)
         except Exception as e:
-            await ctx.send(f"❌ Chyba při reloadování: `{str(e)}`")
+            await interaction.response.send_message(f"❌ Chyba při reloadování: `{str(e)}`", ephemeral=True)
             logger.error(f"Chyba při reloadování {extension}: {e}", exc_info=True)
     
-    @commands.command(name='reload_all')
-    @commands.is_owner()
-    async def reload_all(self, ctx):
-        """
-        Reloaduje všechny cogs a event handlers.
-        Použití: _reload_all
-        Pouze pro vlastníka bota!
-        """
+    @app_commands.command(name='reload_all', description='[Owner] Reloaduje všechny moduly')
+    async def reload_all(self, interaction: discord.Interaction):
+        """Reloaduje všechny cogs a event handlers. Pouze pro vlastníka!"""
+        # Kontrola zda je owner
+        if interaction.user.id != self.bot.owner_id:
+            await interaction.response.send_message("❌ Pouze vlastník bota může používat tento příkaz!", ephemeral=True)
+            return
+        
+        await interaction.response.defer()  # Může trvat déle
+        
         # Seznam všech extensions
         extensions = list(self.bot.extensions.keys())
         
@@ -109,38 +110,31 @@ class BasicCommands(commands.Cog):
                 inline=False
             )
         
-        await ctx.send(embed=embed)
-        logger.info(f"Reload all vyvolán uživatelem {ctx.author.name}: {len(reloaded)} úspěšných, {len(failed)} chyb")
+        await interaction.followup.send(embed=embed)
+        logger.info(f"/reload_all vyvolán uživatelem {interaction.user.name}: {len(reloaded)} úspěšných, {len(failed)} chyb")
     
-    @commands.command(name='shutdown')
-    @commands.is_owner()
-    async def shutdown(self, ctx):
-        """
-        Vypne bota (graceful shutdown).
-        Použití: _shutdown
+    @app_commands.command(name='shutdown', description='[Owner] Vypne bota (Manager ho restartuje)')
+    async def shutdown(self, interaction: discord.Interaction):
+        """Vypne bota (graceful shutdown). Manager ho restartuje!"""
+        # Kontrola zda je owner
+        if interaction.user.id != self.bot.owner_id:
+            await interaction.response.send_message("❌ Pouze vlastník bota může používat tento příkaz!", ephemeral=True)
+            return
         
-        POZOR: Pokud běží s Managerem, Manager ho restartuje!
-        Pro úplné vypnutí použij _shutdown_all
-        
-        Pouze pro vlastníka bota!
-        """
-        await ctx.send("👋 Vypínám se... Bye!")
-        logger.warning(f"⚠️ Bot vypnut příkazem od {ctx.author.name}")
+        await interaction.response.send_message("👋 Vypínám se... Bye!")
+        logger.warning(f"⚠️ Bot vypnut slash příkazem od {interaction.user.name}")
         await self.bot.close()
     
-    @commands.command(name='shutdown_all')
-    @commands.is_owner()
-    async def shutdown_all(self, ctx):
-        """
-        Vypne bota a signalizuje Manageru aby ho nerestartoval.
-        Použití: _shutdown_all
+    @app_commands.command(name='shutdown_all', description='[Owner] Vypne bota i Manager (úplné ukončení)')
+    async def shutdown_all(self, interaction: discord.Interaction):
+        """Vypne bota a signalizuje Manageru aby ho nerestartoval."""
+        # Kontrola zda je owner
+        if interaction.user.id != self.bot.owner_id:
+            await interaction.response.send_message("❌ Pouze vlastník bota může používat tento příkaz!", ephemeral=True)
+            return
         
-        Toto úplně ukončí bota i Manager.
-        
-        Pouze pro vlastníka bota!
-        """
-        await ctx.send("👋 Vypínám bota a Manager... Úplné ukončení!")
-        logger.warning(f"⚠️ Bot + Manager vypnut příkazem od {ctx.author.name}")
+        await interaction.response.send_message("👋 Vypínám bota a Manager... Úplné ukončení!")
+        logger.warning(f"⚠️ Bot + Manager vypnut slash příkazem od {interaction.user.name}")
         
         # Vytvoř signal file pro Manager
         import os

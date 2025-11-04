@@ -3,6 +3,7 @@ Thread Manager Cog
 Správa členů ve vláknech - hromadné odebírání podle výběru nebo rolí
 """
 import discord
+from discord import app_commands
 from discord.ext import commands
 import logging
 from typing import List
@@ -17,22 +18,21 @@ class ThreadManager(commands.Cog):
         self.bot = bot
         logger.info("✅ Thread Manager Cog načten")
     
-    @commands.command(name='thread_manage')
-    @commands.has_permissions(manage_threads=True)
-    async def thread_manage(self, ctx):
-        """
-        Spustí správu členů aktuálního vlákna.
-        Musí být vyvolán VE VLÁKNĚ!
-        
-        Použití: _thread_manage
-        Vyžaduje: Manage Threads oprávnění
-        """
+    @app_commands.command(name='thread_manage', description='Správa členů vlákna - hromadné odebírání')
+    @app_commands.checks.has_permissions(manage_threads=True)
+    async def thread_manage(self, interaction: discord.Interaction):
+        """Spustí správu členů aktuálního vlákna. Musí být vyvolán VE VLÁKNĚ!"""
         # Kontrola zda jsme ve vlákně
-        if not isinstance(ctx.channel, discord.Thread):
-            await ctx.send("❌ Tento příkaz funguje pouze ve vláknech!")
+        if not isinstance(interaction.channel, discord.Thread):
+            await interaction.response.send_message(
+                "❌ Tento příkaz funguje pouze ve vláknech!",
+                ephemeral=True
+            )
             return
         
-        thread = ctx.channel
+        thread = interaction.channel
+        
+        await interaction.response.defer()  # Může trvat déle
         
         # Získej VŠECHNY členy vlákna pomocí správného API
         # thread.fetch_members() vrací seznam ThreadMember objektů
@@ -54,15 +54,15 @@ class ThreadManager(commands.Cog):
             
         except Exception as e:
             logger.error(f"Chyba při načítání členů vlákna: {e}", exc_info=True)
-            await ctx.send(f"❌ Chyba při načítání členů: {str(e)}")
+            await interaction.followup.send(f"❌ Chyba při načítání členů: {str(e)}")
             return
         
         if not members:
-            await ctx.send("❌ Ve vlákně nejsou žádní členové (kromě botů)!")
+            await interaction.followup.send("❌ Ve vlákně nejsou žádní členové (kromě botů)!")
             return
         
         # Vytvoř hlavní view s výběrem módu
-        view = ThreadManagerView(thread, members, ctx.author)
+        view = ThreadManagerView(thread, members, interaction.user)
         
         embed = discord.Embed(
             title="🧵 Správa vlákna",
@@ -78,10 +78,10 @@ class ThreadManager(commands.Cog):
             ),
             inline=False
         )
-        embed.set_footer(text=f"Vyvoláno uživatelem: {ctx.author.display_name}")
+        embed.set_footer(text=f"Vyvoláno uživatelem: {interaction.user.display_name}")
         
-        await ctx.send(embed=embed, view=view)
-        logger.info(f"Thread manage vyvolán ve vlákně {thread.name} ({thread.id}) uživatelem {ctx.author.name}")
+        await interaction.followup.send(embed=embed, view=view)
+        logger.info(f"/thread_manage vyvolán ve vlákně {thread.name} ({thread.id}) uživatelem {interaction.user.name}")
 
 
 class ThreadManagerView(discord.ui.View):
