@@ -34,20 +34,23 @@ class ThreadManager(commands.Cog):
         
         thread = ctx.channel
         
-        # Získej VŠECHNY členy vlákna (včetně offline)
-        # Discord cache (thread.members) často obsahuje jen online členy
-        # Nejspolehlivější způsob: projít historii zpráv
+        # Získej VŠECHNY členy vlákna pomocí správného API
+        # thread.fetch_members() vrací seznam ThreadMember objektů
         try:
-            members_dict = {}  # Použij dict pro deduplikaci {user_id: Member}
+            logger.info(f"Načítám členy vlákna {thread.name} pomocí fetch_members()...")
             
-            # Projdi CELOU historii vlákna a najdi všechny účastníky
-            logger.info(f"Načítám členy z historie vlákna {thread.name}...")
-            async for message in thread.history(limit=None):
-                if message.author and not message.author.bot and message.author.id not in members_dict:
-                    members_dict[message.author.id] = message.author
+            # fetch_members() je async metoda která vrací LIST ThreadMember objektů
+            thread_members = await thread.fetch_members()
             
-            members = list(members_dict.values())
-            logger.info(f"Nalezeno {len(members)} členů ve vlákně {thread.name}")
+            # Převeď ThreadMember na Member objekty
+            members = []
+            for tm in thread_members:
+                # ThreadMember má atribut .id, získej plný Member z guild
+                member = thread.guild.get_member(tm.id)
+                if member and not member.bot:
+                    members.append(member)
+            
+            logger.info(f"Nalezeno {len(members)} členů ve vlákně {thread.name} (celkem {len(thread_members)} včetně botů)")
             
         except Exception as e:
             logger.error(f"Chyba při načítání členů vlákna: {e}", exc_info=True)
